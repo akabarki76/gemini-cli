@@ -5,6 +5,7 @@
  */
 
 import fs from 'fs';
+import shellQuote from 'shell-quote';
 import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
@@ -311,8 +312,9 @@ Process Group PGID: Process group started or \`(none)\``,
       ? params.command
       : (() => {
           // wrap command to append subprocess pids (via pgrep) to temporary file
-          let command = params.command.trim();
-          if (!command.endsWith('&')) command += ';';
+          const escapedCommand = shellQuote.quote([params.command.trim()]);
+          let command = escapedCommand;
+          if (!command.endsWith(';')) command += ';';
           return `{ ${command} }; __code=$?; pgrep -g 0 >${tempFilePath} 2>&1; exit $__code;`;
         })();
 
