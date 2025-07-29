@@ -31,6 +31,7 @@ import {
   isCommandAllowed,
   stripShellWrapper,
 } from '../utils/shell-utils.js';
+import * as shellQuote from 'shell-quote';
 
 export const OUTPUT_UPDATE_INTERVAL_MS = 1000;
 
@@ -205,7 +206,7 @@ export class ShellTool extends BaseTool<ShellToolParams, ToolResult> {
         ? strippedCommand
         : (() => {
             // wrap command to append subprocess pids (via pgrep) to temporary file
-            let command = strippedCommand.trim();
+            let command = shellQuote.quote([strippedCommand.trim()]);
             if (!command.endsWith('&')) command += ';';
             return `{ ${command} }; __code=$?; pgrep -g 0 >${tempFilePath} 2>&1; exit $__code;`;
           })();
